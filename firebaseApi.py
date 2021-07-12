@@ -26,11 +26,12 @@ class Firebase:
         self.__sitesCollection.document(siteId).update({'qrCodeUrl':qrCodeUrl})
 
     def listFootPrintsDataOfSite(self, siteId, beginTime, endTime):
-        footPrintIdsOfSite = list(doc.id for doc in self.__sitesCollection.document(siteId).collection('footPrintIds').where("timestamp", ">=", beginTime).where("timestamp", "<=", endTime)stream())
+        footPrintIdsOfSite = list(doc.id for doc in self.__sitesCollection.document(siteId).collection('footPrintIds').stream())
         footPrintsDataOfSite = []
         for footPrintId in footPrintIdsOfSite:
-            footPrintsDataOfSite.append(self.__footPrintsCollection.document(footPrintId).get().to_dict())
-
+            footprintData = self.__footPrintsCollection.document(footPrintId).get().to_dict()
+            if footprintData["timestamp"]>=beginTime and footprintData["timestamp"]<=endTime:
+                footPrintsDataOfSite.append(footprintData)
         return footPrintsDataOfSite
 
     def createUser(self, userData):
@@ -48,11 +49,12 @@ class Firebase:
         self.__sitesCollection.document(siteId).collection('footPrintIds').document(footPrintId).set(None)
 
     def listFootPrintsDataOfUser(self, userId, beginTime, endTime):
-        footPrintIdsOfUser = list(doc.id for doc in self.__usersCollection.document(userId).collection('footPrintIds').where("timestamp", ">=", beginTime).where("timestamp", "<=", endTime).stream())
+        footPrintIdsOfUser = list(doc.id for doc in self.__usersCollection.document(userId).collection('footPrintIds').stream())
         footPrintsDataOfUser = []
         for footPrintId in footPrintIdsOfUser:
-            footPrintsDataOfUser.append(self.__footPrintsCollection.document(footPrintId).get().to_dict())
-
+            footprintData = self.__footPrintsCollection.document(footPrintId).get().to_dict()
+            if footprintData["timestamp"]>=beginTime and footprintData["timestamp"]<=endTime:
+                footPrintsDataOfUser.append(footprintData)
         return footPrintsDataOfUser
 
     def listSitesDataOfUser(self, userId):
@@ -79,6 +81,19 @@ class Firebase:
         blob.make_public()
 
         return imageUrl
+
+    def getUserDataById(self, userId):
+        userData = self.__usersCollection.document(userId).get().to_dict()
+        return userData
+
+    def getSiteDataById(self, siteId):
+        siteData = self.__sitesCollection.document(siteId).get().to_dict()
+        return siteData
+
+    def getFootprintDataById(self, footprintId):
+        footprintData = self.__footPrintsCollection.document(footprintId).get().to_dict()
+        return footprintData
+
     # def createDevice(request):
     #     devices_ref.document(request['device']).set(request)
 

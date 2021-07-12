@@ -1,0 +1,5 @@
+firebase-admin
+google-auth
+google_oauth2_tool
+opencv-python
+requests
